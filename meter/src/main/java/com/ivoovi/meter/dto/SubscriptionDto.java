@@ -1,20 +1,30 @@
 package com.ivoovi.meter.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.ivoovi.meter.deserializer.IntToBoolean;
 import com.ivoovi.meter.domain.Subscription;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+
 public class SubscriptionDto {
 
     private String icaoCode;
+    @JsonDeserialize(using = IntToBoolean.class)
+    private boolean active ;
+    private LocalDateTime createdAt ;
 
 
     public SubscriptionDto(Subscription subscription) {
         this.icaoCode = subscription.getIcaoCode();
-
+        this.active = subscription.getActive();
+        this.createdAt = subscription.getCreatedAt();
     }
 }

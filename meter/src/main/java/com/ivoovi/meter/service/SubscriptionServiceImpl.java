@@ -5,7 +5,7 @@ import com.ivoovi.meter.dto.SubscriptionDto;
 import com.ivoovi.meter.repository.SubscriptionRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,4 +51,35 @@ public class SubscriptionServiceImpl implements SubscriptionService{
         }
 
     }
+
+    @Override
+    public boolean subscribe(String icaoCode, Boolean active) {
+        var opt = subscriptionRepository.findByIcaoCode(icaoCode);
+        Subscription sub = opt.orElse(null);
+        if (sub == null) {
+            return false;
+        }
+        sub.setActive(true);
+        subscriptionRepository.save(sub);
+        return true;
+    }
+
+    @Override
+    public boolean unsubscribe(String icaoCode, Boolean active) {
+        var opt = subscriptionRepository.findByIcaoCode(icaoCode);
+        Subscription sub = opt.orElse(null);
+        if (sub == null) {
+            return false;
+        }
+        sub.setActive(false); // always deactivate
+        subscriptionRepository.save(sub);
+        return true;
+    }
+
+    @Override
+    public List<SubscriptionDto> getSubscriptionsByIcaoCodeLike(String icaoCode) {
+        return subscriptionRepository.findByIcaoCodeContainingAndActiveTrue(icaoCode).stream().map(SubscriptionDto::new).toList();
+    }
+
 }
+

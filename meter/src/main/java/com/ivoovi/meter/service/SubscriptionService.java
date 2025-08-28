@@ -10,5 +10,8 @@ public interface SubscriptionService {
     List<SubscriptionDto> getAllSubscriptions();
     SubscriptionDto getSubscription(String icaoCode);
     boolean createSubscription(String icaoCode);
+    boolean subscribe(String icaoCode, Boolean active);
+    boolean unsubscribe(String icaoCode, Boolean active);
+    List<SubscriptionDto> getSubscriptionsByIcaoCodeLike(String icaoCode);
 
 }

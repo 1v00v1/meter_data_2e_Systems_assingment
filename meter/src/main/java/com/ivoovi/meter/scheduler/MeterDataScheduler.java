@@ -122,7 +122,6 @@ public class MeterDataScheduler {
         }
         return null;
     }
-// ... existing code ...
 
     public MeterDetailData parse(String metarLine) {
         if (metarLine == null || metarLine.trim().isEmpty()) {
@@ -132,7 +131,6 @@ public class MeterDataScheduler {
         MeterDetailData data = new MeterDetailData();
         String[] parts = metarLine.trim().split("\\s+");
 
-        // parts[0] is station; entity does not contain raw icaoCode field, so we skip setting it here.
 
         for (int i = 1; i < parts.length; i++) {
             String token = parts[i];
