@@ -71,7 +71,7 @@ public class SubscriptionServiceImpl implements SubscriptionService{
         if (sub == null) {
             return false;
         }
-        sub.setActive(false); // always deactivate
+        sub.setActive(false);
         subscriptionRepository.save(sub);
         return true;
     }

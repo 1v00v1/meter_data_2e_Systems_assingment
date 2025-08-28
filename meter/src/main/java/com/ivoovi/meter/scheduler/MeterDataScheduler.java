@@ -43,23 +43,17 @@ public class MeterDataScheduler {
         this.meterRawDataRepository = meterRawDataRepository;
         this.restTemplate = restTemplate;
     }
-    // Wind: 18015G25KT or VRB03KT
-    private static final Pattern WIND_PATTERN = Pattern.compile("(VRB|\\d{3})(\\d{2})(G(\\d{2,3}))?KT(?:\\s+(\\d{3})V(\\d{3}))?");
 
-    // Visibility: 10SM or 9999 (meters) or P6SM
+    private static final Pattern WIND_PATTERN = Pattern.compile("(VRB|\\d{3})(\\d{2})(G(\\d{2,3}))?KT(?:\\s+(\\d{3})V(\\d{3}))?");
     private static final Pattern VISIBILITY_PATTERN = Pattern.compile("(?:(\\d+)(SM))|(?:(\\d{4,5}))");
-    // Weather group: -RA, RA, SKC, TS, etc.
     private static final Pattern WEATHER_PATTERN = Pattern.compile("(?:(?:[-+]?)(RA|SN|DZ|FG|GS|BR|DU|UP|SA|SS|DS|PL|UP|VCTS|TS))");
-    // Cloud: FEW020, SCT020, BKN040, OVC100
     private static final Pattern CLOUD_PATTERN = Pattern.compile("(FEW|SCT|BKN|OVC)(\\d{3})");
-    // Temp / dew: 21/15 or M02/M05
     private static final Pattern TEMP_DEW_PATTERN = Pattern.compile("(M?\\d{2})/(M?\\d{2})");
-    // Pressure: A2992 or Q1013
     private static final Pattern PRESSURE_PATTERN = Pattern.compile("(A|Q)(\\d{4})");
-    // RMK remarks
+
     private static final Pattern RMK_PATTERN = Pattern.compile("RMK(.*)$");
 
-    // ... existing code ...
+
     @Scheduled(cron = CRON_EVERY_15_MIN)
     public void fetchAndPersistMetar() {
         List<Subscription> subscriptions = subscriptionRepository.findByActiveTrue();
@@ -78,13 +72,13 @@ public class MeterDataScheduler {
                     continue;
                 }
 
-                // Save raw data
+
                 MeterRawData raw = new MeterRawData();
                 raw.setRawData(body);
                 raw.setSubscription(sub);
                 meterRawDataRepository.save(raw);
 
-                // Extract latest METAR line from the body and parse
+
                 String metarLine = extractLatestMetar(body);
                 if (metarLine == null) {
                     log.warn("No METAR line found in response for ICAO {}", icao);
@@ -97,10 +91,10 @@ public class MeterDataScheduler {
                     continue;
                 }
 
-                // Ensure required fields and relationships
+
                 detail.setSubscription(sub);
                 if (detail.getTimeOfReport() == null) {
-                    // The entity requires a non-null timeOfReport; use now if not parsed
+
                     detail.setTimeOfReport(LocalDateTime.now());
                 }
 
@@ -145,7 +139,6 @@ public class MeterDataScheduler {
             tryParseRunway(token, data);
         }
 
-        // timeOfReport parsing and createdAt are handled elsewhere as per entity constraints.
         return data;
     }
 
@@ -242,7 +235,7 @@ public class MeterDataScheduler {
         }
     }
 
-    // ... existing code ...
+
     private BigDecimal parseTemp(String token) {
         boolean negative = token.startsWith("M");
         String num = negative ? token.substring(1) : token;
@@ -250,19 +243,19 @@ public class MeterDataScheduler {
         return BigDecimal.valueOf(negative ? -val : val);
     }
 
-    // ... existing code ...
+
     private int convertPressureToHpa(String unit, String val) {
-        // A2992 -> 29.92 inHg; convert to hPa
+
         if ("A".equals(unit)) {
             int inHgTimes100 = Integer.parseInt(val); // e.g., 2992
             double inHg = inHgTimes100 / 100.0;
             double hpa = inHg * 33.8639;
             return (int) Math.round(hpa);
         } else if ("Q".equals(unit)) {
-            // QNH in hPa
+
             return Integer.parseInt(val);
         }
         return 0;
     }
-    // ... existing code ...
+
 }
