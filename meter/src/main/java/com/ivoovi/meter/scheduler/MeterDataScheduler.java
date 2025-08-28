@@ -20,13 +20,13 @@ import com.ivoovi.meter.domain.Subscription;
 
 import java.time.LocalDateTime;
 import java.util.List;
-// ... existing code ...
+
 
 @Component
 public class MeterDataScheduler {
     private static final Logger log = LoggerFactory.getLogger(MeterDataScheduler.class);
-    // Run every 15 minutes (second, minute, hour, day, month, day-of-week)
-    private static final String CRON_EVERY_15_MIN = "0 */1 * * * *";
+
+    private static final String CRON_EVERY_15_MIN = "0 */15 * * * *";
 
     private static final double MILES_TO_METERS = 1609.34;
     private static final int CLOUD_ALTITUDE_MULTIPLIER_FEET = 100;
