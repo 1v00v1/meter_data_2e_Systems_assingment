@@ -35,7 +35,7 @@ public class SubscriptionController {
     }
 
     @PostMapping("/{icaoCode}")
-    public ResponseEntity<Boolean> createSubscription(@PathVariable String icaoCode){
+    public ResponseEntity<SubscriptionDto> createSubscription(@PathVariable String icaoCode){
     return ResponseEntity.ok(subscriptionService.createSubscription(icaoCode));
     }
     @PutMapping("/subscribe/{icaoCode}")

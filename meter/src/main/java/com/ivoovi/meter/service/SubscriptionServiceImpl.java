@@ -6,6 +6,9 @@ import com.ivoovi.meter.repository.SubscriptionRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +21,7 @@ public class SubscriptionServiceImpl implements SubscriptionService{
 
     @Override
     @Transactional
+    @CacheEvict(value = {"subscriptions","subscription"},key = "#icaoCode")
     public boolean deleteSubscription(String icaoCode) {
         if(subscriptionRepository.findByIcaoCode(icaoCode).isPresent()){
             subscriptionRepository.deleteByIcaoCode(icaoCode);
@@ -30,53 +34,57 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     }
 
     @Override
+    @Cacheable(value = "subscriptions")
     public List<SubscriptionDto> getAllSubscriptions() {
         return subscriptionRepository.findByActiveTrue().stream().map(SubscriptionDto::new).toList();
     }
 
     @Override
+    @Cacheable(value = "subscription" , key = "#icaoCode")
     public SubscriptionDto getSubscription(String icaoCode) {
         return subscriptionRepository.findByIcaoCode(icaoCode).map(SubscriptionDto::new).orElse(null);
     }
 
     @Override
-    public boolean createSubscription(String icaoCode) {
+    @CachePut(value = "subscription" , key = "#icaoCode")
+    @CacheEvict(value = "subscriptions",allEntries = true)
+    public SubscriptionDto createSubscription(String icaoCode) {
         try{
-            subscriptionRepository.save(new Subscription(icaoCode));
+            Subscription saved = subscriptionRepository.save(new Subscription(icaoCode));
             System.out.println("Created subscription for icao code: " + icaoCode);
-            return true;
+            return new SubscriptionDto(saved);
         }catch (Exception e){
             System.out.println("Failed to create subscription for icao code: " + icaoCode);
-            return false;
+            return null;
         }
 
     }
 
     @Override
-    public boolean subscribe(String icaoCode, Boolean active) {
-        var opt = subscriptionRepository.findByIcaoCode(icaoCode);
-        Subscription sub = opt.orElse(null);
-        if (sub == null) {
-            return false;
-        }
-        sub.setActive(true);
-        subscriptionRepository.save(sub);
-        return true;
+    @CachePut(value = "subscription" , key = "#icaoCode")
+    @CacheEvict(value = "subscriptions",allEntries = true)
+    public SubscriptionDto subscribe(String icaoCode, Boolean active) {
+        return subscriptionRepository.findByIcaoCode(icaoCode).map(sub -> {
+            sub.setActive(active);
+            subscriptionRepository.save(sub);
+            return new SubscriptionDto(sub);
+        }).orElse(null);
+
     }
 
     @Override
-    public boolean unsubscribe(String icaoCode, Boolean active) {
-        var opt = subscriptionRepository.findByIcaoCode(icaoCode);
-        Subscription sub = opt.orElse(null);
-        if (sub == null) {
-            return false;
-        }
-        sub.setActive(false);
-        subscriptionRepository.save(sub);
-        return true;
+    @CachePut(value = "subscription" , key = "#icaoCode")
+    @CacheEvict(value = "subscriptions",allEntries = true)
+    public SubscriptionDto unsubscribe(String icaoCode, Boolean active) {
+       return subscriptionRepository.findByIcaoCode(icaoCode).map(sub -> {
+            sub.setActive(active);
+            subscriptionRepository.save(sub);
+            return new SubscriptionDto(sub);
+       }).orElse(null);
     }
 
     @Override
+    @Cacheable(value = "subscriptionsLike",key = "#icaoCode")
     public List<SubscriptionDto> getSubscriptionsByIcaoCodeLike(String icaoCode) {
         return subscriptionRepository.findByIcaoCodeContainingAndActiveTrue(icaoCode).stream().map(SubscriptionDto::new).toList();
     }
