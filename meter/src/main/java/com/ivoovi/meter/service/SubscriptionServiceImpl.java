@@ -86,10 +86,9 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     }
 
     @Override
-    @Cacheable(value = "subscriptionsLike",key = "#icaoCode")
-    public List<SubscriptionDto> getSubscriptionsByIcaoCodeLike(String icaoCode) {
-        return subscriptionRepository.findByIcaoCodeContainingAndActiveTrue(icaoCode).stream().map(SubscriptionDto::new).toList();
-    }
+    public Page<SubscriptionDto> getSubscriptionsByIcaoCodeLike(String icaoCode, Pageable pageable) {
+        return subscriptionRepository.findByIcaoCodeContainingAndActiveTrue(icaoCode, pageable).map(SubscriptionDto::new);
 
+    }
 }
 
