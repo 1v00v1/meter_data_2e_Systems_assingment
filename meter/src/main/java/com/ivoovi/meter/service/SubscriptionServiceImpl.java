@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,10 +36,10 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     }
 
     @Override
-    @Cacheable(value = "subscriptions")
-    public List<SubscriptionDto> getAllSubscriptions() {
-        return subscriptionRepository.findByActiveTrue().stream().map(SubscriptionDto::new).toList();
+    public Page<SubscriptionDto> getAllSubscriptions(Pageable pageable) {
+        return subscriptionRepository.findAll(pageable).map(SubscriptionDto::new);
     }
+
 
     @Override
     @Cacheable(value = "subscription" , key = "#icaoCode")

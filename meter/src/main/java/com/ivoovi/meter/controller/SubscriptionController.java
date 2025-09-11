@@ -2,7 +2,9 @@ package com.ivoovi.meter.controller;
 
 import com.ivoovi.meter.dto.SubscriptionDto;
 import com.ivoovi.meter.service.SubscriptionService;
+import com.ivoovi.meter.utility.PageResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +19,8 @@ public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
 @GetMapping
-    public ResponseEntity<List<SubscriptionDto>> getAllActiveSubscriptions(){
-        return ResponseEntity.ok(subscriptionService.getAllSubscriptions());
+    public PageResponse<SubscriptionDto> getAllActiveSubscriptions(Pageable pageable){
+        return new PageResponse<>(subscriptionService.getAllSubscriptions(pageable));
     }
     @GetMapping("/matching")
     public ResponseEntity<List<SubscriptionDto>> getSubscriptionsByIcaoCodeLike(@RequestParam String icaoCode){
