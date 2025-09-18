@@ -14,7 +14,7 @@ public class PageResponse <T>{
     private int size;
     private long totalElements;
     private int totalPages;
-
+    public PageResponse() {}
     public PageResponse(Page<T> page) {
         this.content = page.getContent();
         this.page = page.getNumber();

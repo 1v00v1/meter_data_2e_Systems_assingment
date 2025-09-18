@@ -1,39 +1,58 @@
 package com.ivoovi.meter.service;
 
-
 import com.ivoovi.meter.dto.WeatherDto;
 import com.ivoovi.meter.repository.MeterDetailDataRepository;
 import com.ivoovi.meter.repository.SubscriptionRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.Optional;
-
+import java.util.Set;
 
 @Service
-@AllArgsConstructor
-public class WeatherServiceImpl implements WeatherService{
+@RequiredArgsConstructor
+public class WeatherServiceImpl implements WeatherService {
 
     private final MeterDetailDataRepository meterDetailDataRepository;
     private final SubscriptionRepository subscriptionRepository;
 
 
     @Override
-    public Optional<String> getLatestWeatherByIcaoCode(String icaoCode) {
+    public Optional<WeatherDto> getLatestWeatherDtoByIcaoCode(String icaoCode) {
         return subscriptionRepository.findById(icaoCode.toUpperCase())
                 .flatMap(meterDetailDataRepository::findTop1BySubscriptionOrderByCreatedAtDesc)
-                .map(meter -> {
-                    StringBuilder sb = new StringBuilder();
-                    if (meter.getWindDirection() != null) sb.append("Wind Direction: ").append(meter.getWindDirection()).append("°, ");
-                    if (meter.getWindSpeed() != null) sb.append("Wind Speed: ").append(meter.getWindSpeed()).append(" km/h, ");
-                    if (meter.getWindGust() != null) sb.append("Wind Gust: ").append(meter.getWindGust()).append(" km/h, ");
-                    if (meter.getVisibilityInMeters() != null) sb.append("Visibility: ").append(meter.getVisibilityInMeters()).append(" m, ");
-                    if (meter.getTemperatureInCelsius() != null) sb.append("Temperature: ").append(meter.getTemperatureInCelsius()).append("°C, ");
-                    if (meter.getPressureHpa() != null) sb.append("Pressure: ").append(meter.getPressureHpa()).append(" hPa");
+                .map(WeatherDto::new);
+    }
 
-                    String result = sb.toString().trim();
-                    if (result.endsWith(",")) result = result.substring(0, result.length() - 1);
-                    return result;
-                });
+    public String toHumanReadableString(WeatherDto dto, Set<String> fields) {
+        if (fields == null) fields = Collections.emptySet();
+        StringBuilder sb = new StringBuilder();
+
+
+        if ((fields.isEmpty() || fields.contains("windDirection")) && dto.getWindDirection() != null) {
+            sb.append("Wind Direction: ").append(dto.getWindDirection()).append("°, ");
+        }
+        if ((fields.isEmpty() || fields.contains("windSpeed")) && dto.getWindSpeed() != null) {
+            sb.append("Wind Speed: ").append(dto.getWindSpeed()).append(" km/h, ");
+        }
+        if ((fields.isEmpty() || fields.contains("windGust")) && dto.getWindGust() != null) {
+            sb.append("Wind Gust: ").append(dto.getWindGust()).append(" km/h, ");
+        }
+        if ((fields.isEmpty() || fields.contains("visibilityInMeters")) && dto.getVisibilityInMeters() != null) {
+            sb.append("Visibility: ").append(dto.getVisibilityInMeters()).append(" m, ");
+        }
+        if ((fields.isEmpty() || fields.contains("temperature")) && dto.getTemperature() != null) {
+            sb.append("Temperature: ").append(dto.getTemperature()).append("°C, ");
+        }
+        if ((fields.isEmpty() || fields.contains("pressureHpa")) && dto.getPressureHpa() != null) {
+            sb.append("Pressure: ").append(dto.getPressureHpa()).append(" hPa, ");
+        }
+
+        if (sb.length() > 2) {
+            sb.setLength(sb.length() - 2);
+        }
+
+        return sb.toString();
     }
 }

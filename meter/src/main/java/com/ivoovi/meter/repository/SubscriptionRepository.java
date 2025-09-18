@@ -10,8 +10,9 @@ import java.util.Optional;
 
 public interface SubscriptionRepository extends JpaRepository<Subscription, String> {
 
-    Optional<Subscription > findByIcaoCode(String icaoCode);
-    List<Subscription> findByActiveTrue();
+    Page<Subscription> findByIcaoCodeContaining(String icaoCodeLike, Pageable pageable);
+    Page<Subscription> findByActive(Boolean active, Pageable pageable);
     void deleteByIcaoCode(String icaoCode);
-    Page<Subscription> findByIcaoCodeContainingAndActiveTrue(String icaoCode, Pageable pageable);
+    Page<Subscription> findByIcaoCodeContainingAndActive(String icaoCode,Boolean active, Pageable pageable);
+    Optional<Subscription> findByIcaoCode(String icaoCode);
 }

@@ -4,7 +4,7 @@ import com.ivoovi.meter.domain.MeterDetailData;
 import com.ivoovi.meter.repository.MeterDetailDataRepository;
 import com.ivoovi.meter.repository.MeterRawDataRepository;
 import com.ivoovi.meter.repository.SubscriptionRepository;
-import io.github.mivek.parser.MetarParser;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-// ... existing code ...
+
 import com.ivoovi.meter.domain.MeterRawData;
 import com.ivoovi.meter.domain.Subscription;
 
@@ -56,7 +56,7 @@ public class MeterDataScheduler {
 
     @Scheduled(cron = CRON_EVERY_15_MIN)
     public void fetchAndPersistMetar() {
-        List<Subscription> subscriptions = subscriptionRepository.findByActiveTrue();
+        List<Subscription> subscriptions = subscriptionRepository.findByActive(true,null).getContent();
         if (subscriptions.isEmpty()) {
             log.debug("No active subscriptions found for METAR fetch.");
             return;

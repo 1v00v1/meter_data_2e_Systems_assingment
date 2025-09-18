@@ -1,23 +1,55 @@
 package com.ivoovi.meter.controller;
 
-
+import com.ivoovi.meter.dto.WeatherDto;
 import com.ivoovi.meter.service.WeatherService;
-import lombok.AllArgsConstructor;
+import com.ivoovi.meter.utility.JsonFilterUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
-@AllArgsConstructor
 @RequestMapping("/weather")
+@RequiredArgsConstructor
 public class WeatherController {
 
     private final WeatherService weatherService;
 
+
     @GetMapping("/{icao}")
-    public ResponseEntity<String> getLatestWeather(@PathVariable String icao) {
-        return weatherService.getLatestWeatherByIcaoCode(icao)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> getLatestWeather(
+            @PathVariable String icao,
+            @RequestParam(required = false) String fields,
+            @RequestParam(required = false, defaultValue = "true") boolean humanReadable
+    ) throws Exception {
+
+        Optional<WeatherDto> weatherDtoOpt = weatherService.getLatestWeatherDtoByIcaoCode(icao);
+
+        if (weatherDtoOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Set<String> fieldSet = (fields == null || fields.isBlank())
+                ? Collections.emptySet()
+                : Stream.of(fields.split(","))
+                .map(String::trim)
+                .collect(Collectors.toSet());
+
+
+        WeatherDto dto = weatherDtoOpt.get();
+
+        if (humanReadable) {
+
+            return ResponseEntity.ok(weatherService.toHumanReadableString(dto,fieldSet));
+        }
+
+        Map<String, Object> filtered = JsonFilterUtil.filterObject(dto, fields);
+        return ResponseEntity.ok(filtered);
     }
 }
