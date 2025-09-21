@@ -54,7 +54,7 @@ public class MeterDataScheduler {
     private static final Pattern RMK_PATTERN = Pattern.compile("RMK(.*)$");
 
 
-    @Scheduled(cron = CRON_EVERY_15_MIN)
+
     public void fetchAndPersistMetar() {
         List<Subscription> subscriptions = subscriptionRepository.findByActive(true,null).getContent();
         if (subscriptions.isEmpty()) {
