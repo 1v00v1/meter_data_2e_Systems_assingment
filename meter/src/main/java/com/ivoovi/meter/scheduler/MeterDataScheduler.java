@@ -7,7 +7,7 @@ import com.ivoovi.meter.repository.SubscriptionRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
+
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,8 +25,6 @@ import java.util.List;
 @Component
 public class MeterDataScheduler {
     private static final Logger log = LoggerFactory.getLogger(MeterDataScheduler.class);
-
-    private static final String CRON_EVERY_15_MIN = "0 */15 * * * *";
 
     private static final double MILES_TO_METERS = 1609.34;
     private static final int CLOUD_ALTITUDE_MULTIPLIER_FEET = 100;
