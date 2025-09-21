@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
+    private final JsonFilterUtil jsonFilterUtil;
 
     @GetMapping
     public ResponseEntity<?> getAllSubscriptions(
@@ -38,13 +39,13 @@ public class SubscriptionController {
 
 
             if (active != null && subscription.isActive() != active) {
-                return ResponseEntity.ok().body(null); // or ResponseEntity.noContent().build()
+                return ResponseEntity.ok().body(null);
             }
             result = subscription;
 
 
             if (fields != null && !fields.isBlank()) {
-                result = JsonFilterUtil.filterObject(subscription, fields);
+                result = jsonFilterUtil.filterObject(subscription, fields);
             }
 
         } else if (icaoCodeLike != null) {
@@ -56,7 +57,7 @@ public class SubscriptionController {
                 List<Map<String, Object>> filteredContent = page.getContent().stream()
                         .map(dto -> {
                             try {
-                                return JsonFilterUtil.filterObject(dto, fields);
+                                return jsonFilterUtil.filterObject(dto, fields);
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -84,7 +85,7 @@ public class SubscriptionController {
                 List<Map<String, Object>> filteredContent = page.getContent().stream()
                         .map(dto -> {
                             try {
-                                return JsonFilterUtil.filterObject(dto, fields);
+                                return jsonFilterUtil.filterObject(dto, fields);
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -114,14 +115,14 @@ public class SubscriptionController {
             @RequestParam(required = false) String fields
     ) throws Exception {
 
-        // Create subscription
+
         SubscriptionDto subscription = subscriptionService.createSubscription(icaoCode);
 
         Object result;
 
         if (fields != null && !fields.isBlank()) {
-            // Apply dynamic field filtering
-            result = JsonFilterUtil.filterObject(subscription, fields);
+
+            result = jsonFilterUtil.filterObject(subscription, fields);
         } else {
             result = subscription;
         }

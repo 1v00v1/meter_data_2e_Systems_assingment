@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 public class WeatherController {
 
     private final WeatherService weatherService;
-
+    private final JsonFilterUtil jsonFilterUtil;
 
     @GetMapping("/{icao}")
     public ResponseEntity<?> getLatestWeather(
@@ -49,7 +49,7 @@ public class WeatherController {
             return ResponseEntity.ok(weatherService.toHumanReadableString(dto,fieldSet));
         }
 
-        Map<String, Object> filtered = JsonFilterUtil.filterObject(dto, fields);
+        Map<String, Object> filtered = jsonFilterUtil.filterObject(dto, fields);
         return ResponseEntity.ok(filtered);
     }
 }
