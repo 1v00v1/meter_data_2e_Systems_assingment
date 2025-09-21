@@ -1,12 +1,16 @@
 package com.ivoovi.meter.dto;
 
 import com.ivoovi.meter.domain.MeterDetailData;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class WeatherDto {
     private Integer windDirection;
     private Integer windSpeed;
